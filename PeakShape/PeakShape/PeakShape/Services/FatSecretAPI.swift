@@ -84,8 +84,6 @@ public class FatSecretAPI {
                 do { // Try to decode the data into a FatSecretSearchResponse object
                     // Debug: Print raw JSON first
                     if let jsonString = String(data: data, encoding: .utf8) { // If the data can be converted to a string, print the string
-                        print("Raw API Response:")
-                        print(jsonString)
                     }
                     
                     let decoded = try JSONDecoder().decode(FatSecretSearchResponse.self, from: data) // Try to decode the data into a FatSecretSearchResponse object

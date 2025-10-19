@@ -7,7 +7,31 @@
 
 import Foundation
 
+// MARK: - FatSecret Barcode API Response
+
+/**
+ Root-level response wrapper from FatSecret API barcode search endpoint.
+ 
+ This struct represents the top-level JSON response structure returned by the FatSecret API
+ when performing barcode searches. The barcode API returns a direct food object, not the
+ foods_search structure used by the regular search API.
+ 
+ - Note: The API returns all numeric values as strings, not numbers
+ - SeeAlso: `FatSecretAPIBarcodeService.scanBarcode(_:completion:)`
+ */
+public struct FatSecretBarcodeResponse: Codable, Hashable {
+    /// The food item found for the barcode
+    public let food: FatSecretFood?
+    
+    /// Initializes a new barcode response
+    /// - Parameter food: The food item found for the barcode
+    public init(food: FatSecretFood?) {
+        self.food = food
+    }
+}
+
 // MARK: - FatSecret API Response (v4)
+
 
 /**
  Root-level response wrapper from FatSecret API v4 food search endpoint.

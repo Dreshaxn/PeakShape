@@ -24,20 +24,38 @@ struct HomeView: View {
                 Spacer()
                 
                 NavigationLink(destination: SearchFoodView()) {
-                    Text("Search for Food")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                        Text("Search for Food")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
                 }
                 
+                NavigationLink(destination: ScanFoodView()) {
+                    HStack {
+                        Image(systemName: "barcode.viewfinder")
+                        Text("Scan Barcode")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+                
+                Button("signOut") {
+                    authViewModel.signOut()               }
+                    
+                }
                 Spacer()
             }
             .padding()
         }
     }
-}
 
 #Preview {
     HomeView()

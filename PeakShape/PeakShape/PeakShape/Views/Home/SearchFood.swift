@@ -114,11 +114,6 @@ struct SearchFoodView: View {
                 isLoading = false
                 switch result {
                 case .success(let response):
-                    print("Search Query: \(searchQuery)")
-                    print("Full Response: \(response)")
-                    print("Foods Search: \(response.foods_search)")
-                    print("Results: \(response.foods_search?.results)")
-                    print("Food Array: \(response.foods_search?.results?.food)")
                     
                     let foundFoods = response.foods_search?.results?.food ?? []
                     print("Found \(foundFoods.count) foods")

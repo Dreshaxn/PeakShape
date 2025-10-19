@@ -36,8 +36,8 @@ public class FatSecretAuthService {
         request.addValue("Basic \(encoded)", forHTTPHeaderField: "Authorization")
         request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
-        // grant_type=client_credentials&scope=basic
-        let body = "grant_type=client_credentials&scope=premier"
+        // grant_type=client_credentials&scope=premier barcode
+        let body = "grant_type=client_credentials&scope=premier%20barcode"
         request.httpBody = body.data(using: .utf8)
         
         URLSession.shared.dataTask(with: request) { data, _, error in

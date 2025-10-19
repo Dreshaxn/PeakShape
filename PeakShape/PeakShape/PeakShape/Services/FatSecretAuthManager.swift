@@ -22,7 +22,7 @@ import Foundation
  */
 public class FatSecretAuthManager {
     /// Shared singleton instance
-    static let shared = FatSecretAuthManager()
+    static let ourOneAuthManager = FatSecretAuthManager()
 
     /// Cached access token
     private var accessToken: String?
