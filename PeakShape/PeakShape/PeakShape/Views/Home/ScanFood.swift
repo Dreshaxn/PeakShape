@@ -7,34 +7,13 @@
 
 import SwiftUI
 
-/**
- Barcode scanning interface using FatSecret API integration.
- 
- This view provides a complete barcode scanning experience with real-time results
- from the FatSecret database. Users can enter barcode numbers manually or scan
- them using the device camera to get detailed nutritional information.
- 
- Features:
- - Manual barcode number entry
- - Real-time barcode lookup using FatSecret API
- - Nutritional information display
- - Loading states and error handling
- - Responsive UI with barcode results
- 
- - Note: Requires valid FatSecret API credentials with premier scope
- - SeeAlso: `FatSecretAPIBarcodeService` for API integration
- */
 struct ScanFoodView: View {
-    /// Current barcode number entered by user
     @State private var barcodeNumber = ""
-    /// Barcode search result from API
     @State private var barcodeResult: FatSecretBarcodeResponse?
-    /// Loading state indicator
     @State private var isLoading = false
-    /// Error message to display to user
     @State private var errorMessage: String?
-    /// Success message to display
     @State private var successMessage: String?
+    @State private var selectedServingIndex = 0
 
     var body: some View {
         NavigationView {
@@ -57,7 +36,6 @@ struct ScanFoodView: View {
                 }
                 .padding(.top, 20)
                 
-                //Barcode Input Section
                 VStack(spacing: 16) {
                     HStack {
                         TextField("Enter barcode number...", text: $barcodeNumber)
@@ -87,7 +65,7 @@ struct ScanFoodView: View {
                     }
                     .padding(.horizontal)
                     
-                    // 🌀 Loading state
+                    // Loading state
                     if isLoading {
                         HStack {
                             ProgressView()
@@ -100,7 +78,7 @@ struct ScanFoodView: View {
                     }
                 }
                 
-                // 📋 Results Section
+                // Results Section
                 if let result = barcodeResult, let food = result.food {
                     VStack(alignment: .leading, spacing: 16) {
                         // Success message
@@ -127,30 +105,28 @@ struct ScanFoodView: View {
                                 }
                             }
                             
-                            // Nutritional information
-                            if let servings = food.servings?.serving.first {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("Nutritional Information")
+                            // Serving Size Picker
+                            if let servings = food.servings?.serving, !servings.isEmpty {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("Serving Size")
                                         .font(.headline)
-                                        .padding(.top, 8)
+                                        .padding(.horizontal)
                                     
-                                    LazyVGrid(columns: [
-                                        GridItem(.flexible()),
-                                        GridItem(.flexible())
-                                    ], spacing: 8) {
-                                        if let calories = servings.calories, let cal = Double(calories) {
-                                            NutritionCard(title: "Calories", value: "\(Int(cal)) kcal", color: .orange)
-                                        }
-                                        if let protein = servings.protein, let prot = Double(protein) {
-                                            NutritionCard(title: "Protein", value: "\(String(format: "%.1f", prot))g", color: .red)
-                                        }
-                                        if let carbs = servings.carbohydrate, let carb = Double(carbs) {
-                                            NutritionCard(title: "Carbs", value: "\(String(format: "%.1f", carb))g", color: .blue)
-                                        }
-                                        if let fat = servings.fat, let fatVal = Double(fat) {
-                                            NutritionCard(title: "Fat", value: "\(String(format: "%.1f", fatVal))g", color: .purple)
+                                    Picker("Serving Size", selection: $selectedServingIndex) {
+                                        ForEach(0..<servings.count, id: \.self) { index in
+                                            Text(servings[index].serving_description ?? "Unknown")
+                                                .tag(index)
                                         }
                                     }
+                                    .pickerStyle(WheelPickerStyle())
+                                    .frame(height: 120)
+                                    .padding(.horizontal)
+                                }
+                                
+                                // Nutritional Information
+                                if selectedServingIndex < servings.count {
+                                    let selectedServing = servings[selectedServingIndex]
+                                    NutritionDetailCard(serving: selectedServing)
                                 }
                             }
                         }
@@ -167,7 +143,7 @@ struct ScanFoodView: View {
                         .padding()
                 }
                 
-                // ❌ Error message
+                // Error message
                 if let error = errorMessage {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
@@ -191,20 +167,6 @@ struct ScanFoodView: View {
         }
     }
     
-    // MARK: - Barcode Scanning Function
-    
-    /**
-     Performs barcode search using FatSecret API.
-     
-     This method handles the complete barcode search workflow:
-     1. Validates barcode number is not empty
-     2. Sets loading state and clears previous results
-     3. Calls FatSecret API with barcode number
-     4. Updates UI with results or error message
-     
-     - Note: Barcode number is trimmed of whitespace before API call
-     - Important: Results are updated on main thread for UI safety
-     */
     func scanBarcode() {
         let trimmedBarcode = barcodeNumber.trimmingCharacters(in: .whitespaces)
         guard !trimmedBarcode.isEmpty else { return }
@@ -213,6 +175,7 @@ struct ScanFoodView: View {
         barcodeResult = nil
         errorMessage = nil
         successMessage = nil
+        selectedServingIndex = 0
         
         FatSecretAPIBarcodeService.scanBarcode(trimmedBarcode) { result in
             DispatchQueue.main.async {
@@ -241,35 +204,6 @@ struct ScanFoodView: View {
     }
 }
 
-/**
- Custom nutrition card component for displaying nutritional information.
- 
- This view creates a styled card showing nutritional data with color coding
- for different types of nutrients.
- */
-struct NutritionCard: View {
-    let title: String
-    let value: String
-    let color: Color
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Text(value)
-                .font(.headline)
-                .fontWeight(.semibold)
-                .foregroundColor(color)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(color.opacity(0.1))
-        )
-    }
-}
 
 #Preview {
     ScanFoodView()
