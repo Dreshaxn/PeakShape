@@ -6,7 +6,6 @@ import Foundation
 //  Created by Ryan Gordon on 10/18/25.
 //
 
-
 /**
  Service responsible for calculating user calorie and macronutrient targets.
  
@@ -17,11 +16,14 @@ import Foundation
  It supports both “Lose X pounds per week” and “Lose X pounds by a target date” goals,
  enforcing healthy and realistic daily calorie deficits with safety floors.
  
- - Note: This service is independent of Firebase and SwiftUI.
-   It can be reused in Cloud Functions, ViewModels, or testing environments.
+ - Notes:
+   - **Now supports Imperial inputs** (pounds, feet + inches) via convenient initializers and helpers.
+   - Metric inputs (kg/cm) remain the canonical internal representation.
+   - Conversions use exact factors: 1 lb = **0.45359237 kg**, 1 in = **2.54 cm**.
  
- - Important: Always ensure that user weight and height are converted
-   to kilograms and centimeters before passing values to this service.
+ - Important:
+   - If you already have height/weight in metric, use the metric initializer.
+   - If you collect height/weight in **feet/inches** and **pounds**, use the new Imperial initializer.
  
  - SeeAlso: `GoalType`, `UserProfile`, `CalorieResult`
  */
@@ -48,9 +50,12 @@ public struct CalorieCalculatorService {
      - Parameters:
        - sex: "male" or "female"
        - age: Age in years
-       - heightCm: Height in centimeters
-       - weightKg: Weight in kilograms
+       - heightCm: Height in centimeters (canonical)
+       - weightKg: Weight in kilograms (canonical)
        - activityLevel: Level of daily activity
+     
+     - Notes:
+       - Use the **Imperial convenience initializer** when height/weight are in feet/inches and pounds.
      */
     public struct UserProfile {
         public var sex: String
@@ -59,12 +64,31 @@ public struct CalorieCalculatorService {
         public var weightKg: Double
         public var activityLevel: ActivityLevel
         
+        /// Metric initializer (canonical)
         public init(sex: String, age: Int, heightCm: Double, weightKg: Double, activityLevel: ActivityLevel) {
             self.sex = sex
             self.age = age
             self.heightCm = heightCm
             self.weightKg = weightKg
             self.activityLevel = activityLevel
+        }
+        
+        /// Imperial convenience initializer (feet/inches & pounds)
+        /// - Parameters:
+        ///   - heightFeet: Whole feet component (e.g., 5 for 5'10")
+        ///   - heightInches: Remaining inches (e.g., 10 for 5'10"). May be fractional.
+        ///   - weightPounds: Body weight in pounds (may be fractional).
+        public init(sex: String,
+                    age: Int,
+                    heightFeet: Int,
+                    heightInches: Double,
+                    weightPounds: Double,
+                    activityLevel: ActivityLevel) {
+            let totalInches = max(0.0, Double(heightFeet) * 12.0 + heightInches)
+            let cm = UnitConverter.inchesToCentimeters(totalInches)
+            let kg = UnitConverter.poundsToKilograms(weightPounds)
+            
+            self.init(sex: sex, age: age, heightCm: cm, weightKg: kg, activityLevel: activityLevel)
         }
     }
     
@@ -101,6 +125,36 @@ public struct CalorieCalculatorService {
         public let notes: String
     }
     
+    // MARK: - Public Unit Helpers (Imperial ↔ Metric)
+    /**
+     Light-weight unit conversion helpers for callers that need them.
+     
+     - Note: These are **pure functions** and can be used in ViewModels, validation, or tests.
+     */
+    public enum UnitConverter {
+        /// 1 pound = 0.45359237 kilograms
+        public static func poundsToKilograms(_ pounds: Double) -> Double {
+            pounds * 0.45359237
+        }
+        /// 1 inch = 2.54 centimeters
+        public static func inchesToCentimeters(_ inches: Double) -> Double {
+            inches * 2.54
+        }
+        /// 1 centimeter = 0.393700787 inches
+        public static func centimetersToInches(_ centimeters: Double) -> Double {
+            centimeters * 0.393700787
+        }
+        /// 1 kilogram = 2.2046226218 pounds
+        public static func kilogramsToPounds(_ kilograms: Double) -> Double {
+            kilograms * 2.2046226218
+        }
+        
+        /// Convenience: (feet, inches) → centimeters
+        public static func feetInchesToCentimeters(feet: Int, inches: Double) -> Double {
+            inchesToCentimeters(Double(feet) * 12.0 + inches)
+        }
+    }
+    
     // MARK: - Main Calculation
     
     /**
@@ -112,10 +166,11 @@ public struct CalorieCalculatorService {
      
      - Returns: A `CalorieResult` containing detailed calculations and notes.
      
-     - Note:
+     - Notes:
        - Uses Mifflin–St Jeor equation for BMR.
        - Enforces a minimum daily calorie floor (male: 1500, female: 1200).
        - All values are rounded to whole numbers for display.
+       - Works identically whether the profile originated from **metric** or **imperial** inputs.
      
      - SeeAlso: `calculateBMR(for:)`
      */
@@ -185,10 +240,3 @@ public struct CalorieCalculatorService {
         }
     }
 }
-
-
-
-
-
-
-
