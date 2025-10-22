@@ -10,7 +10,13 @@ import SwiftUI
 struct NutritionDetailCard: View {
     let serving: FatSecretServing
     
+    private func parseDouble(from string: String?) -> Double? {
+        guard let string = string, !string.isEmpty else { return nil }
+        return Double(string)
+    }
+    
     var body: some View {
+        
         VStack(alignment: .leading, spacing: 16) {
             Text("Nutritional Information")
                 .font(.headline)
@@ -22,49 +28,49 @@ struct NutritionDetailCard: View {
             ], spacing: 12) {
                 NutritionItem(
                     title: "Calories",
-                    value: serving.calories,
+                    value: parseDouble(from: serving.calories),
                     unit: "kcal",
                     color: .orange
                 )
                 
                 NutritionItem(
                     title: "Protein",
-                    value: serving.protein,
+                    value: parseDouble(from: serving.protein),
                     unit: "g",
                     color: .red
                 )
                 
                 NutritionItem(
                     title: "Fat",
-                    value: serving.fat,
+                    value: parseDouble(from: serving.fat),
                     unit: "g",
                     color: .yellow
                 )
                 
                 NutritionItem(
                     title: "Carbs",
-                    value: serving.carbohydrate,
+                    value: parseDouble(from: serving.carbohydrate),
                     unit: "g",
                     color: .green
                 )
                 
                 NutritionItem(
                     title: "Fiber",
-                    value: serving.fiber,
+                    value: parseDouble(from: serving.fiber),
                     unit: "g",
                     color: .brown
                 )
                 
                 NutritionItem(
                     title: "Sugar",
-                    value: serving.sugar,
+                    value: parseDouble(from: serving.sugar),
                     unit: "g",
                     color: .pink
                 )
                 
                 NutritionItem(
                     title: "Sodium",
-                    value: serving.sodium,
+                    value: parseDouble(from: serving.sodium),
                     unit: "mg",
                     color: .blue
                 )
@@ -82,7 +88,7 @@ struct NutritionDetailCard: View {
 
 struct NutritionItem: View {
     let title: String
-    let value: String?
+    let value: Double?
     let unit: String
     let color: Color
     
@@ -92,7 +98,7 @@ struct NutritionItem: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
             
-            Text(formatValue(value) ?? "0")
+            Text(formatValue(value))
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(color)
@@ -109,8 +115,8 @@ struct NutritionItem: View {
         )
     }
     
-    private func formatValue(_ value: String?) -> String? {
-        guard let value = value, let doubleValue = Double(value) else { return nil }
-        return String(format: "%.1f", doubleValue)
+    private func formatValue(_ value: Double?) -> String {
+        guard let value = value else { return "0" }
+        return String(format: "%.1f", value)
     }
 }

@@ -171,13 +171,27 @@ struct ScanFoodView: View {
         let trimmedBarcode = barcodeNumber.trimmingCharacters(in: .whitespaces)
         guard !trimmedBarcode.isEmpty else { return }
         
+        // Convert barcode to GTIN-13 format
+        guard let gtin13Barcode = BarcodeConverter.convertToGTIN13(trimmedBarcode) else {
+            errorMessage = "Invalid barcode format. Please enter a valid EAN-8, EAN-13, UPC-A, or UPC-E barcode."
+            return
+        }
+        
+        // Show barcode type detection
+        if let barcodeType = BarcodeConverter.detectBarcodeType(trimmedBarcode) {
+            print("Detected barcode type: \(barcodeType.rawValue)")
+        }
+        
         isLoading = true
         barcodeResult = nil
         errorMessage = nil
         successMessage = nil
         selectedServingIndex = 0
         
-        FatSecretAPIBarcodeService.scanBarcode(trimmedBarcode) { result in
+        print("Original barcode: \(trimmedBarcode)")
+        print("Converted to GTIN-13: \(gtin13Barcode)")
+        
+        FatSecretAPIBarcodeService.scanBarcode(gtin13Barcode) { result in
             DispatchQueue.main.async {
                 isLoading = false
                 switch result {
