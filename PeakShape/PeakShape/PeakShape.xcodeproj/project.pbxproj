@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C0E397222EA9912F006C1294 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = C0E397212EA9912F006C1294 /* FirebaseAnalytics */; };
+		C0E397242EA9912F006C1294 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = C0E397232EA9912F006C1294 /* FirebaseDatabase */; };
+		C0E397262EA9912F006C1294 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = C0E397252EA9912F006C1294 /* FirebaseFirestore */; };
+		C0E397282EA9912F006C1294 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = C0E397272EA9912F006C1294 /* FirebaseStorage */; };
 		E50BA5712E21EF5400002BA8 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = E50BA5702E21EF5400002BA8 /* FirebaseAuth */; };
 		E58CD3012EA4B8510039A206 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E58CD3002EA4B8510039A206 /* GoogleService-Info.plist */; };
 		E58CD3022EA4B8510039A206 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E58CD3002EA4B8510039A206 /* GoogleService-Info.plist */; };
@@ -60,6 +64,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0E397242EA9912F006C1294 /* FirebaseDatabase in Frameworks */,
+				C0E397262EA9912F006C1294 /* FirebaseFirestore in Frameworks */,
+				C0E397222EA9912F006C1294 /* FirebaseAnalytics in Frameworks */,
+				C0E397282EA9912F006C1294 /* FirebaseStorage in Frameworks */,
 				E50BA5712E21EF5400002BA8 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -123,6 +131,10 @@
 			name = PeakShape;
 			packageProductDependencies = (
 				E50BA5702E21EF5400002BA8 /* FirebaseAuth */,
+				C0E397212EA9912F006C1294 /* FirebaseAnalytics */,
+				C0E397232EA9912F006C1294 /* FirebaseDatabase */,
+				C0E397252EA9912F006C1294 /* FirebaseFirestore */,
+				C0E397272EA9912F006C1294 /* FirebaseStorage */,
 			);
 			productName = PeakShape;
 			productReference = E50BA5452E21BFC100002BA8 /* PeakShape.app */;
@@ -582,6 +594,22 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C0E397212EA9912F006C1294 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAnalytics;
+		};
+		C0E397232EA9912F006C1294 /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseDatabase;
+		};
+		C0E397252EA9912F006C1294 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseFirestore;
+		};
+		C0E397272EA9912F006C1294 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseStorage;
+		};
 		E50BA5702E21EF5400002BA8 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E50BA56F2E21EF5400002BA8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
