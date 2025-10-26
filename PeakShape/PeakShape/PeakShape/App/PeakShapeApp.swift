@@ -7,8 +7,6 @@
 
 import SwiftUI
 import Firebase
-import GoogleSignIn
-
 
 @main
 struct PeakShapeApp: App {
@@ -18,15 +16,11 @@ struct PeakShapeApp: App {
     // 👇 Initialize Firebase when app starts
     init() {
         FirebaseApp.configure()
-        if let clientID = FirebaseApp.app()?.options.clientID {
-            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
-        }
     }
     var body: some Scene {
         WindowGroup {
            AuthGateView()  // 👈 This will show login or home
                 .environmentObject(authViewModel) // 👈 Inject the view model
-            
         }
     }
 }
