@@ -5,7 +5,7 @@ import SwiftUI
 import UIKit
 import AuthenticationServices
 import CryptoKit
-// import GoogleSignIn
+import GoogleSignIn
 
 
 // This ViewModel manages authentication state and actions for the app.
@@ -101,7 +101,7 @@ class AuthViewModel: ObservableObject {
     
 
     // MARK: - Google (Temporarily disabled)
-    /*
+    
      func signInWithGoogle(presenting vc: UIViewController) {
          errorMessage = nil
          GIDSignIn.sharedInstance.signIn(withPresenting: vc) { [weak self] result, error in
@@ -129,7 +129,7 @@ class AuthViewModel: ObservableObject {
              }
          }
      }
-     */
+     
 
     // MARK: - Apple
     func makeAppleIDRequest(_ request: ASAuthorizationAppleIDRequest) {

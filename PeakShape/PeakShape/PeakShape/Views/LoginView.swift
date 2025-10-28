@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
-// import GoogleSignIn
-// import GoogleSignInSwift
+import GoogleSignIn
+import GoogleSignInSwift
 import AuthenticationServices
 
 
@@ -45,7 +45,7 @@ struct LoginView: View {
                 .padding(.horizontal)
                 
                 // MARK: - Google Sign In (Temporarily disabled)
-                /*
+                
                 GoogleSignInButton(
                     viewModel: GoogleSignInButtonViewModel(
                         scheme: .dark,
@@ -56,7 +56,7 @@ struct LoginView: View {
                         authViewModel.signInWithGoogle(presenting: presenter())
                     }
                 )
-                */
+                
                 
                 // MARK: - Divider
                 HStack {
