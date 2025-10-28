@@ -1,23 +1,37 @@
 import Foundation
 import FirebaseAuth
-import FirebaseFirestore
 import Combine
+import SwiftUI
+import UIKit
+import AuthenticationServices
+import CryptoKit
+// import GoogleSignIn
 
-// ViewModel manages authentication state and actions for the app.
+
+// This ViewModel manages authentication state and actions for the app.
 class AuthViewModel: ObservableObject {
     // The current Firebase user (nil if not logged in)
-    @Published var user: FirebaseAuth.User?
+    @Published var user: User?
     // Any error message to show in the UI
     @Published var errorMessage: String?
+    // Track if user has completed onboarding
+    @Published var hasCompletedOnboarding: Bool = false
+    
+    @Published var phoneNumber: String = ""
+    @Published var smsCode: String = ""
+    @Published var verificationID: String? = nil
+    
     // Listener for auth state changes
     private var handle: AuthStateDidChangeListenerHandle?
-    // Firestore reference
-    private let db = Firestore.firestore()
+    
+    // Apple Sign-In nonce
+    private var currentNonce: String?
     
     // Set up the listener when the ViewModel is created
     init() {
+        // Listen for changes in authentication state
         handle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            self?.user = user
+            DispatchQueue.main.async { self?.user = user } // Update the user property
         }
     }
     
@@ -28,70 +42,205 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Authentication Methods
+    /*
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+      return GIDSignIn.sharedInstance.handle(url)
+    }
+    */
     
+    // MARK: - Email / Password
     func login(email: String, password: String) {
-        errorMessage = nil
+        errorMessage = nil // Clear any previous error
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
             DispatchQueue.main.async {
                 if let error = error {
+                    // If there's an error, show it
                     self?.errorMessage = error.localizedDescription
                 } else {
+                    // If successful, update the user
                     self?.user = result?.user
                 }
             }
         }
     }
     
+    // MARK: Register a new user with email and password
     func register(email: String, password: String) {
-        errorMessage = nil
+        errorMessage = nil // Clear any previous error
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
             DispatchQueue.main.async {
                 if let error = error {
+                    // If there's an error, show it
                     self?.errorMessage = error.localizedDescription
                 } else {
+                    // If successful, update the user
                     self?.user = result?.user
                 }
             }
         }
     }
     
+    // MARK: Sign out the current user
     func signOut() {
         do {
             try Auth.auth().signOut()
-            self.user = nil
+            self.user = nil // Clear the user
+            self.hasCompletedOnboarding = false // Reset onboarding state
         } catch {
+            // If there's an error signing out, show it
             self.errorMessage = error.localizedDescription
         }
     }
-    struct UserOnboardingData: Codable {
-        var age: Int
-        var gender: String
-        var heightCm: Double
-        var weightKg: Double
-        var activityLevel: String
-        var dietaryPreference: String
-        var goal: String
-        var dailyCalories: Double
-        var macros: [String: Double]
-    }
-    // MARK: - Save Onboarding Data
     
-    func saveOnboardingData(_ data: UserOnboardingData, completion: @escaping (Error?) -> Void) {
-        guard let uid = user?.uid else {
-            completion(NSError(domain: "AuthError", code: 401, userInfo: [
-                NSLocalizedDescriptionKey: "User not authenticated"
-            ]))
+    // MARK: Mark onboarding as completed
+    func completeOnboarding() {
+        hasCompletedOnboarding = true
+    }
+    
+
+    // MARK: - Google (Temporarily disabled)
+    /*
+     func signInWithGoogle(presenting vc: UIViewController) {
+         errorMessage = nil
+         GIDSignIn.sharedInstance.signIn(withPresenting: vc) { [weak self] result, error in
+             if let error = error {
+                 DispatchQueue.main.async { self?.errorMessage = error.localizedDescription }
+                 return
+             }
+             guard
+                 let self,
+                 let idToken = result?.user.idToken?.tokenString,
+                 let accessToken = result?.user.accessToken.tokenString
+             else {
+                 DispatchQueue.main.async { self?.errorMessage = "Google sign-in failed." }
+                 return
+             }
+             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+             Auth.auth().signIn(with: credential) { authResult, error in
+                 DispatchQueue.main.async {
+                     if let error = error {
+                         self.errorMessage = error.localizedDescription
+                         return
+                     }
+                     self.user = authResult?.user
+                 }
+             }
+         }
+     }
+     */
+
+    // MARK: - Apple
+    func makeAppleIDRequest(_ request: ASAuthorizationAppleIDRequest) {
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = sha256(nonce)
+    }
+    
+    func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
+            
+        case .success(let auth):
+            guard
+                let credential = auth.credential as? ASAuthorizationAppleIDCredential,
+                let identityTokenData = credential.identityToken,
+                let identityToken = String(data: identityTokenData, encoding: .utf8),
+                let nonce = currentNonce
+            else {
+                self.errorMessage = "Unable to fetch Apple identity token."
+                return
+            }
+            let firebaseCredential = OAuthProvider.credential(
+                providerID: .apple,
+                idToken: identityToken,
+                rawNonce: nonce,
+                accessToken: nil
+            )
+            Auth.auth().signIn(with: firebaseCredential) { [weak self] authResult, error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        self?.errorMessage = error.localizedDescription
+                        return
+                    }
+                    self?.user = authResult?.user
+                }
+            }
+        }
+    }
+
+    // MARK: - Phone (SMS)
+    func startPhoneAuth() {
+        errorMessage = nil
+        let trimmed = phoneNumber.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            self.errorMessage = "Enter a valid phone number."
             return
         }
-        
-        do {
-            let encodedData = try Firestore.Encoder().encode(data)
-            db.collection("users").document(uid).setData(encodedData, merge: true) { error in
-                completion(error)
+        PhoneAuthProvider.provider().verifyPhoneNumber(trimmed, uiDelegate: nil) { [weak self] verificationID, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.errorMessage = error.localizedDescription
+                    return
+                }
+                self?.verificationID = verificationID
             }
-        } catch {
-            completion(error)
         }
+    }
+    
+    func verifySMSCode() {
+        errorMessage = nil
+        guard let verificationID else {
+            self.errorMessage = "No verification in progress."
+            return
+        }
+        let code = smsCode.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !code.isEmpty else {
+            self.errorMessage = "Enter the 6-digit code."
+            return
+        }
+        let credential = PhoneAuthProvider.provider().credential(
+            withVerificationID: verificationID,
+            verificationCode: code
+        )
+        Auth.auth().signIn(with: credential) { [weak self] authResult, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.errorMessage = error.localizedDescription
+                    return
+                }
+                self?.user = authResult?.user
+            }
+        }
+    }
+
+    
+    // MARK: - Apple nonce helpers
+    private func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashed = SHA256.hash(data: inputData)
+        return hashed.map { String(format: "%02x", $0) }.joined()
+    }
+    
+    /// Generates a random nonce for Apple Sign-In. From Apple sample guidance.
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        let charset = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remainingLength = length
+        
+        while remainingLength > 0 {
+            var random: UInt8 = 0
+            let status = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
+            if status != errSecSuccess { fatalError("Unable to generate nonce. OSStatus \(status)") }
+            if random < charset.count {
+                result.append(charset[Int(random)])
+                remainingLength -= 1
+            }
+        }
+        return result
     }
 }

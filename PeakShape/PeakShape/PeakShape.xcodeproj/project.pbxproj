@@ -12,9 +12,6 @@
 		C0E397262EA9912F006C1294 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = C0E397252EA9912F006C1294 /* FirebaseFirestore */; };
 		C0E397282EA9912F006C1294 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = C0E397272EA9912F006C1294 /* FirebaseStorage */; };
 		E50BA5712E21EF5400002BA8 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = E50BA5702E21EF5400002BA8 /* FirebaseAuth */; };
-		E58CD3012EA4B8510039A206 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E58CD3002EA4B8510039A206 /* GoogleService-Info.plist */; };
-		E58CD3022EA4B8510039A206 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E58CD3002EA4B8510039A206 /* GoogleService-Info.plist */; };
-		E58CD3032EA4B8510039A206 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E58CD3002EA4B8510039A206 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,7 +35,6 @@
 		E50BA5452E21BFC100002BA8 /* PeakShape.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PeakShape.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E50BA5522E21BFC300002BA8 /* PeakShapeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PeakShapeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E50BA55C2E21BFC300002BA8 /* PeakShapeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PeakShapeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		E58CD3002EA4B8510039A206 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -96,7 +92,6 @@
 				E50BA5552E21BFC300002BA8 /* PeakShapeTests */,
 				E50BA55F2E21BFC300002BA8 /* PeakShapeUITests */,
 				E50BA5462E21BFC100002BA8 /* Products */,
-				E58CD3002EA4B8510039A206 /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -238,7 +233,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E58CD3022EA4B8510039A206 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -246,7 +240,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E58CD3012EA4B8510039A206 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,7 +247,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E58CD3032EA4B8510039A206 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

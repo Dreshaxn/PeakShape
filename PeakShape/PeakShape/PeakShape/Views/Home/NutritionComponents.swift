@@ -10,11 +10,6 @@ import SwiftUI
 struct NutritionDetailCard: View {
     let serving: FatSecretServing
     
-    private func parseDouble(from string: String?) -> Double? {
-        guard let string = string, !string.isEmpty else { return nil }
-        return Double(string)
-    }
-    
     var body: some View {
         
         VStack(alignment: .leading, spacing: 16) {
@@ -28,49 +23,49 @@ struct NutritionDetailCard: View {
             ], spacing: 12) {
                 NutritionItem(
                     title: "Calories",
-                    value: parseDouble(from: serving.calories),
+                    value: Double(serving.calories ?? "0"),
                     unit: "kcal",
                     color: .orange
                 )
                 
                 NutritionItem(
                     title: "Protein",
-                    value: parseDouble(from: serving.protein),
+                    value: Double(serving.protein ?? "0"),
                     unit: "g",
                     color: .red
                 )
                 
                 NutritionItem(
                     title: "Fat",
-                    value: parseDouble(from: serving.fat),
+                    value: Double(serving.fat ?? "0"),
                     unit: "g",
                     color: .yellow
                 )
                 
                 NutritionItem(
                     title: "Carbs",
-                    value: parseDouble(from: serving.carbohydrate),
+                    value: Double(serving.carbohydrate ?? "0"),
                     unit: "g",
                     color: .green
                 )
                 
                 NutritionItem(
                     title: "Fiber",
-                    value: parseDouble(from: serving.fiber),
+                    value: Double(serving.fiber ?? "0"),
                     unit: "g",
                     color: .brown
                 )
                 
                 NutritionItem(
                     title: "Sugar",
-                    value: parseDouble(from: serving.sugar),
+                    value: Double(serving.sugar ?? "0"),
                     unit: "g",
                     color: .pink
                 )
                 
                 NutritionItem(
                     title: "Sodium",
-                    value: parseDouble(from: serving.sodium),
+                    value: Double(serving.sodium ?? "0"),
                     unit: "mg",
                     color: .blue
                 )
