@@ -21,6 +21,9 @@ class AuthViewModel: ObservableObject {
     @Published var smsCode: String = ""
     @Published var verificationID: String? = nil
     
+    @Published var isLoading: Bool = false
+
+    
     // Listener for auth state changes
     private var handle: AuthStateDidChangeListenerHandle?
     
@@ -100,7 +103,7 @@ class AuthViewModel: ObservableObject {
     }
     
 
-    // MARK: - Google (Temporarily disabled)
+    // MARK: - Google 
     
      func signInWithGoogle(presenting vc: UIViewController) {
          errorMessage = nil
@@ -243,4 +246,57 @@ class AuthViewModel: ObservableObject {
         }
         return result
     }
+    
+    
+    // MARK: - Microsoft
+
+    func signInWithMicrosoft() {
+        errorMessage = nil
+        isLoading = true
+
+        let provider = OAuthProvider(providerID: "microsoft.com")
+        provider.customParameters = [
+            "prompt": "select_account",
+            "tenant": "common" // allows both personal + work/school accounts
+        ]
+        provider.scopes = ["openid", "email", "profile", "User.Read"]
+
+        provider.getCredentialWith(nil) { [weak self] credential, error in
+            guard let self = self else { return }
+
+            // Handle potential errors when fetching the credential
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    self.errorMessage = error.localizedDescription
+                }
+                return
+            }
+
+            // Ensure we received a valid credential from Microsoft
+            guard let credential = credential else {
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    self.errorMessage = "Microsoft sign-in failed."
+                }
+                return
+            }
+
+            // Use the credential to sign in with Firebase
+            Auth.auth().signIn(with: credential) { authResult, error in
+                DispatchQueue.main.async {
+                    self.isLoading = false
+
+                    if let error = error {
+                        self.errorMessage = error.localizedDescription
+                        return
+                    }
+
+                    // Successful sign-in
+                    self.user = authResult?.user
+                }
+            }
+        }
+    }
+
 }

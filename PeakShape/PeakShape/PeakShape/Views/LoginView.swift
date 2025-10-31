@@ -24,49 +24,11 @@ struct LoginView: View {
             VStack(spacing: 18) {
                 Spacer(minLength: 30)
                 
-                Text("Login")
+                Text("Welcome to PeakShape")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.bottom, 8)
 
-                // MARK: - Apple Sign In
-                SignInWithAppleButton(
-                    .signIn,
-                    onRequest: { request in
-                        authViewModel.makeAppleIDRequest(request)
-                    },
-                    onCompletion: { result in
-                        authViewModel.handleAppleSignIn(result: result)
-                    }
-                )
-                .signInWithAppleButtonStyle(.black)
-                .frame(height: 48)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal)
-                
-                // MARK: - Google Sign In (Temporarily disabled)
-                
-                GoogleSignInButton(
-                    viewModel: GoogleSignInButtonViewModel(
-                        scheme: .dark,
-                        style: .wide,
-                        state: .normal
-                    ),
-                    action: {
-                        authViewModel.signInWithGoogle(presenting: presenter())
-                    }
-                )
-                
-                
-                // MARK: - Divider
-                HStack {
-                    Rectangle().frame(height: 1).opacity(0.2)
-                    Text("or").foregroundStyle(.secondary)
-                    Rectangle().frame(height: 1).opacity(0.2)
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                
                 // MARK: - Email/Password
                 VStack(spacing: 10) {
                     TextField("Email", text: $email)
@@ -88,9 +50,70 @@ struct LoginView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.horizontal)
                 }
+                                
+                // MARK: - Divider
+                HStack {
+                    Rectangle().frame(height: 1).opacity(0.2)
+                    Text("or").foregroundStyle(.secondary)
+                    Rectangle().frame(height: 1).opacity(0.2)
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
                 
-                // MARK: - Phone Sign-In (Compact)
-                VStack(spacing: 8) {
+                // MARK: - Apple Sign In
+                SignInWithAppleButton(
+                    .signIn,
+                    onRequest: { request in
+                        authViewModel.makeAppleIDRequest(request)
+                    },
+                    onCompletion: { result in
+                        authViewModel.handleAppleSignIn(result: result)
+                    }
+                )
+                .signInWithAppleButtonStyle(.black)
+                .frame(height: 44)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .padding(.horizontal)
+                
+                // MARK: - Google Sign In
+                
+                GoogleSignInButton(
+                    viewModel: GoogleSignInButtonViewModel(
+                        scheme: .dark,
+                        style: .wide,
+                        state: .normal
+                    ),
+                    action: {
+                        authViewModel.signInWithGoogle(presenting: presenter())
+                    }
+                )
+                .frame(height: 44)                 // match Apple height
+                .padding(.horizontal)
+
+                // MARK: - Microsoft Sign In
+                Button(action: {
+                    authViewModel.signInWithMicrosoft()
+                }) {
+                    HStack(spacing: 10) {
+                        Image("ms_box_logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20) // smaller logo for visual balance
+                        Text("Sign in with Microsoft")
+                            .font(.subheadline)           // slightly smaller font
+                            .fontWeight(.medium)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)               // slightly less padding
+                    .background(Color(UIColor.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal)
+
+                
+                // MARK: - Phone Sign-In (Compact)(temporarily not in use)
+              /*  VStack(spacing: 8) {
                     Text("Phone Sign-In")
                         .font(.headline)
                     TextField("+1 555 555 1234", text: $authViewModel.phoneNumber)
@@ -109,7 +132,7 @@ struct LoginView: View {
                         }
                     }
                     .padding(.horizontal)
-                }
+                }*/
                 
                 // MARK: - Error message
                 if let error = authViewModel.errorMessage {
