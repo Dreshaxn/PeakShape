@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Firebase
+import GoogleSignIn
 
 @main
 struct PeakShapeApp: App {
@@ -21,6 +22,10 @@ struct PeakShapeApp: App {
         WindowGroup {
            AuthGateView()  // 👈 This will show login or home
                 .environmentObject(authViewModel) // 👈 Inject the view model
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                }
+            
         }
     }
 }
